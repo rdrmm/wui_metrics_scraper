@@ -1,0 +1,22 @@
+# WUI Metrics Scraper Configuration
+# Define devices to scrape by make/model
+
+scrapers:
+  - name: "Living Room Router"
+    type: "netgear"
+    url: "http://192.168.1.1"
+    timeout: 10
+    enabled: true
+
+  - name: "Bedroom Router"
+    type: "asus"
+    url: "http://192.168.1.2"
+    timeout: 10
+    enabled: true
+
+  # Easily add more devices here:
+  # - name: "Office Router"
+  #   type: "tp_link"
+  #   url: "http://192.168.1.3"
+  #   timeout: 10
+  #   enabled: false
