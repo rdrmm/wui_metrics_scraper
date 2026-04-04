@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -23,7 +24,7 @@ type ScraperConfig struct {
 
 // Scraper interface
 type Scraper interface {
-	Scrape() (map[string]interface{}, error)
+	Scrape(verbose bool, saveResponses bool) (map[string]interface{}, error)
 }
 
 // ScraperFactory creates scrapers
@@ -33,12 +34,18 @@ func (f *ScraperFactory) Create(config ScraperConfig) Scraper {
 	switch config.Type {
 	case "fios":
 		return &FiosScraper{config: config}
+	case "test":
+		return &TestScraper{config: config}
 	default:
 		return nil
 	}
 }
 
 func main() {
+	verbose := flag.Bool("verbose", false, "Enable verbose output with response bodies")
+	saveResponses := flag.Bool("save", false, "Save responses to files for inspection")
+	flag.Parse()
+
 	configFile := "config_scrapers.yaml"
 	data, err := os.ReadFile(configFile)
 	if err != nil {
@@ -65,7 +72,7 @@ func main() {
 		}
 
 		log.Printf("Scraping: %s", scraperCfg.Name)
-		result, err := scraper.Scrape()
+		result, err := scraper.Scrape(*verbose, *saveResponses)
 		if err != nil {
 			log.Printf("Error scraping %s: %v", scraperCfg.Name, err)
 			continue

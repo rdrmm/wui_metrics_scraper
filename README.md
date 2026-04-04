@@ -50,6 +50,23 @@ scrapers:
 ./wui_scraper
 ```
 
+## Verifying It Works
+
+The scraper includes a **test mode** with mock data so you can verify it's working before connecting to a real router:
+
+```bash
+# Verbose mode shows all HTTP requests, responses, and metrics
+./wui_scraper -verbose
+
+# Save mode saves HTTP responses to files for inspection
+./wui_scraper -save
+
+# Combine both for maximum debugging
+./wui_scraper -verbose -save
+```
+
+See [TESTING.md](TESTING.md) for detailed testing instructions.
+
 ## Extending for Specific Devices
 
 To add scraping for specific metrics on the FIOS G1100 (or other devices), modify the `Scrape` method in `fios_scraper.go`. For example, parse HTML elements or make authenticated requests.
