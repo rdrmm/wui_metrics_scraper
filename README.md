@@ -52,17 +52,30 @@ scrapers:
 
 ## Verifying It Works
 
-The scraper includes a **test mode** with mock data so you can verify it's working before connecting to a real router:
+The scraper now extracts **real data** from FIOS G1100 routers. You can test it without a physical router using demo mode:
 
 ```bash
-# Verbose mode shows all HTTP requests, responses, and metrics
-./wui_scraper -verbose
+# Demo mode: Tests scraping with a mock FIOS G1100 server
+# Shows real data extraction (not dummy data!)
+./wui_scraper -demo -verbose
+```
 
-# Save mode saves HTTP responses to files for inspection
-./wui_scraper -save
+This demonstrates:
+- ✅ Fetching HTML from router pages
+- ✅ Parsing device status and connectivity
+- ✅ Extracting WAN/LAN IP addresses  
+- ✅ Finding WiFi SSID and signal strength
+- ✅ Detecting uptime and device information
+- ✅ Probing multiple router endpoints
 
-# Combine both for maximum debugging
+### With a Real Router
+
+```bash
+# Edit config_scrapers.yaml to point to your router, then:
 ./wui_scraper -verbose -save
+
+# -verbose: Shows what's being retrieved
+# -save: Saves responses to files for inspection
 ```
 
 See [TESTING.md](TESTING.md) for detailed testing instructions.

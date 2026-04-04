@@ -2,17 +2,17 @@
 # Define devices to scrape by make/model
 
 scrapers:
-  - name: "FIOS G1100 Router (Test)"
-    type: "test"
+  - name: "FIOS G1100 Router"
+    type: "fios"
     url: "http://192.168.1.1"
     timeout: 10
     enabled: true
 
-  # Real FIOS scraper - uncomment when you have a real router
-  # - name: "FIOS G1100 Router"
-  #   type: "fios"
+  # Optional: test with mock data (comment out real scraper above)
+  # - name: "FIOS Test Mock"
+  #   type: "test"
   #   url: "http://192.168.1.1"
   #   timeout: 10
   #   enabled: false
 
-  # Easily add more devices here with different types
+  # Easily add more devices here

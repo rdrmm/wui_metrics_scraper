@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -44,7 +45,18 @@ func (f *ScraperFactory) Create(config ScraperConfig) Scraper {
 func main() {
 	verbose := flag.Bool("verbose", false, "Enable verbose output with response bodies")
 	saveResponses := flag.Bool("save", false, "Save responses to files for inspection")
+	demo := flag.Bool("demo", false, "Run with mock FIOS server for testing")
 	flag.Parse()
+
+	// Start mock server if demo mode
+	if *demo {
+		log.Println("DEMO MODE: Starting mock FIOS G1100 server")
+		StartMockFiosServer(8888)
+		
+		// Update config to use localhost mock server
+		log.Println("Using mock server at http://127.0.0.1:8888")
+		time.Sleep(500 * time.Millisecond) // Give server time to start
+	}
 
 	configFile := "config_scrapers.yaml"
 	data, err := os.ReadFile(configFile)
@@ -63,6 +75,11 @@ func main() {
 		if !scraperCfg.Enabled {
 			log.Printf("Skipping disabled scraper: %s", scraperCfg.Name)
 			continue
+		}
+
+		// In demo mode, override the URL
+		if *demo {
+			scraperCfg.URL = "http://127.0.0.1:8888"
 		}
 
 		scraper := factory.Create(scraperCfg)

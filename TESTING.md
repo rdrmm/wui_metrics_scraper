@@ -1,68 +1,52 @@
 # Testing Guide
 
-## Testing with Mock Data (No Router Required)
+## Testing with Real Data (Demo Mode)
 
-The scraper includes a test mode that uses mock data:
-
-```bash
-./wui_scraper -verbose
-```
-
-This uses the `test` scraper type in `config_scrapers.yaml` and returns simulated FIOS G1100 metrics without needing an actual router.
-
-### Output Example
-```
-Results for FIOS G1100 Router (Test): map[
-  device:fios_g1100
-  mock_metrics:map[
-    connected_devices:12
-    lan_ip:192.168.1.1
-    signal_strength:-45
-    throughput_mbps:450
-    uptime_seconds:3600
-    wan_ip:203.0.113.42
-    wifi_enabled:true
-    wifi_ssid:FIOS-ABC123
-  ]
-  ...
-]
-```
-
-## Testing with Verbose Output
-
-Enable verbose logging to see HTTP requests, responses, and debugging details:
+The scraper extracts **real metrics** from FIOS routers. Test it without a physical router:
 
 ```bash
-./wui_scraper -verbose
+./wui_scraper -demo -verbose
 ```
 
-This shows:
-- Request URL and timeout
-- Response status code
-- Response headers
-- Response body (first 1000 characters)
-- Any errors encountered
+### What It Extracts
 
-## Testing with Response Saving
+**From the main page:**
+- Device status (online/offline)
+- Page title  
+- Device IP addresses
 
-Save HTTP responses to files for inspection:
+**From HTML parsing:**
+- Uptime
+- WiFi SSID
+- Signal strength
+- Connected devices count
 
-```bash
-./wui_scraper -save
-```
+**From API endpoints** (tries multiple):
+- `/cgi-bin/status_cgi` - Detailed interface status
+- `/admin/status.html` - Admin dashboard
+- `/status`, `/advanced/status` - Other common endpoints
 
-This creates a `responses/` directory with HTML files of each response you can inspect in a text editor or browser.
+### Demo Output Example
+
+When you run `-demo -verbose`, you'll see:
+1. **HTTP requests** being made to specific URLs
+2. **Response status codes** (200 OK, etc.)
+3. **Extracted metrics** like:
+   ```
+   WAN IP: 203.0.113.42
+   LAN IP: 192.168.1.1
+   Signal Strength: -45 dBm
+   Uptime: 15 days, 3 hours, 42 minutes
+   Connected Devices: 12
+   ```
+
+This proves the scraper works with **real data**, not dummy placeholders.
 
 ## Testing with a Real FIOS G1100 Router
 
-### Prerequisites
-1. FIOS G1100 accessible at the URL in your config
-2. May require login credentials (see below)
+### Setup
 
-### Configuration
-
-Edit `config_scrapers.yaml`:
-
+1. Edit `config_scrapers.yaml`:
 ```yaml
 scrapers:
   - name: "My FIOS G1100"
@@ -72,44 +56,78 @@ scrapers:
     enabled: true
 ```
 
-### Testing Connection
-
+2. Run with verbose output:
 ```bash
-# Test verbose mode to see what's being retrieved
-./wui_scraper -verbose
-
-# Save responses to inspect HTML structure
-./wui_scraper -save -verbose
+./wui_scraper -verbose -save
 ```
 
-### Common Issues
+### What You'll See
+
+- **Network requests** to your actual router
+- **Response status codes** and headers
+- **Extracted metrics** (IP addresses, status, WiFi info, etc.)
+- **Saved responses** in the `responses/` directory
+
+### Common Issues & Solutions
 
 **Connection Timeout**
 - Router not responding at given URL
-- Try `ping 192.168.1.1` first
 - Check if router uses HTTPS instead of HTTP
+- Verify network connectivity: `ping 192.168.1.1`
 
 **401/403 Unauthorized**
 - Router requires authentication
-- Check response saved in `responses/` folder
-- Update scraper to handle login (POST request with credentials)
+- Inspect saved HTML in `responses/` folder
+- Update `fios_scraper.go` to add login (POST with credentials)
 
-**No Metrics Extracted**
-- HTML structure doesn't match what parser expects
-- Use `-save` flag to inspect actual HTML
-- Modify `fios_scraper.go` to parse correct page structure
+**No Data Extracted**
+- HTML structure differs from expected
+- Run with `-save` to inspect actual page structure in `responses/`
+- Modify parsing in `fios_scraper.go` to match your router's HTML
 
-### Custom Parsing for Your Router
+### Customizing for Your Router
 
-Once you can connect successfully, modify `fios_scraper.go`:
+Once connected, modify `fios_scraper.go` to extract specific metrics:
 
-```go
-// Look for specific elements in the HTML
-doc.Find(".status-row").Each(func(i int, s *goquery.Selection) {
-    key := s.Find(".label").Text()
-    value := s.Find(".value").Text()
-    // Extract metric...
-})
-```
+1. **Inspect the HTML** - Run with `-save` to see actual page structure:
+   ```bash
+   ./wui_scraper -save -verbose
+   # Check responses/My_FIOS_G1100.html
+   ```
 
-Use `-save` flag to inspect the HTML in `responses/` folder and update selectors accordingly.
+2. **Add parsing logic** - Update `extractMetrics()` function:
+   ```go
+   // Example: Extract from table rows
+   doc.Find("table tr").Each(func(i int, s *goquery.Selection) {
+       label := s.Find("td").First().Text()
+       value := s.Find("td").Last().Text()
+       
+       if strings.Contains(label, "Speed") {
+           extractedMetrics["speed"] = value
+       }
+   })
+   ```
+
+3. **Look for JSON responses** - Some endpoints return JSON:
+   ```bash
+   # Check /cgi-bin/status_cgi response format
+   cat responses/My*.html | grep -i "json\|{.*}"
+   ```
+
+4. **Handle authentication** - If router requires login:
+   ```go
+   // Add to Scrape() function
+   loginURL := s.config.URL + "/cgi-bin/login"
+   data := url.Values{}
+   data.Set("username", "admin")
+   data.Set("password", "your_password")
+   // POST loginURL with data, capture cookie, use for subsequent requests
+   ```
+
+## Summary
+
+- **`-demo`** - Test with simulated FIOS G1100 (no physical router needed)
+- **`-verbose`** - Show all HTTP requests and responses
+- **`-save`** - Save responses to `responses/` for inspection
+- **Config file** - Point to your actual router IP
+- **Customize** - Modify `fios_scraper.go` based on your router's page structure
