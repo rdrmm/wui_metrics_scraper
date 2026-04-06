@@ -150,4 +150,4 @@ if __name__ == "__main__":
 
     while True:
         update_all()
-        time.sleep(5)
+        time.sleep(65)
