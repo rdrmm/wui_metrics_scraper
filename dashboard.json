@@ -1,0 +1,100 @@
+{
+  "dashboard": {
+    "annotations": { "list": [] },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "title": "Current Active Clients",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+        "targets": [{ "expr": "router_clients_active_total", "refId": "A" }],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 15 },
+                { "color": "red", "value": 25 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "WAN Throughput (Mbps)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 18, "x": 6, "y": 0 },
+        "targets": [
+          {
+            "expr": "irate(router_network_bytes_total{interface=\"Broadband Connection (Ethernet/Coax)\", direction=\"rx\"}[2m]) * 8 / 1000 / 1000",
+            "legendFormat": "Download",
+            "refId": "A"
+          },
+          {
+            "expr": "irate(router_network_bytes_total{interface=\"Broadband Connection (Ethernet/Coax)\", direction=\"tx\"}[2m]) * 8 / 1000 / 1000",
+            "legendFormat": "Upload",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "bps" }
+        }
+      },
+      {
+        "title": "Wi-Fi Errors (Packet Drops)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+        "targets": [
+          {
+            "expr": "irate(router_network_errors_total{interface=~\".*Wireless.*\"}[5m])",
+            "legendFormat": "{{interface}} Errors",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "custom": { "drawStyle": "bars" } }
+        }
+      },
+      {
+        "title": "Device Signal Strength (RSSI)",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "targets": [
+          {
+            "expr": "router_device_rssi != 0",
+            "legendFormat": "{{name}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": -100,
+            "max": -30,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "orange", "value": -80 },
+                { "color": "green", "value": -65 }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": ["router", "network"],
+    "timezone": "",
+    "title": "Router Performance Dashboard",
+    "uid": "router_perf_01",
+    "version": 1
+  }
+}
