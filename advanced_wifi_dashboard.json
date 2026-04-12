@@ -1,0 +1,261 @@
+{
+  "dashboard": {
+    "annotations": { "list": [] },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+      {
+        "title": "WiFi Network Overview",
+        "type": "table",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "router_wifi_radio_enabled",
+            "legendFormat": "{{ssid}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "displayMode": "color-text"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "green", "value": 1 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "showHeader": true
+        }
+      },
+      {
+        "title": "Active Clients by SSID",
+        "type": "bargauge",
+        "gridPos": { "h": 6, "w": 12, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "router_wifi_clients_per_ssid",
+            "legendFormat": "{{ssid}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 50
+          }
+        }
+      },
+      {
+        "title": "WiFi Channel Health",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+        "targets": [
+          {
+            "expr": "router_wifi_channel_occupancy_percent",
+            "legendFormat": "{{ssid}} Occupancy",
+            "refId": "A"
+          },
+          {
+            "expr": "router_wifi_channel_idle_percent",
+            "legendFormat": "{{ssid}} Idle",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "title": "WiFi Packet Errors",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+        "targets": [
+          {
+            "expr": "rate(router_wifi_rx_errors_total[5m])",
+            "legendFormat": "{{ssid}} RX Errors/sec",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          }
+        }
+      },
+      {
+        "title": "WiFi Maximum Rates",
+        "type": "table",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 14 },
+        "targets": [
+          {
+            "expr": "router_wifi_max_rate_mbps",
+            "legendFormat": "{{ssid}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "Mbps"
+          }
+        }
+      },
+      {
+        "title": "Device Connection Rates",
+        "type": "table",
+        "gridPos": { "h": 6, "w": 12, "x": 12, "y": 14 },
+        "targets": [
+          {
+            "expr": "router_device_connection_rate > 0",
+            "legendFormat": "{{name}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "Mbps"
+          }
+        }
+      },
+      {
+        "title": "Device Signal Strength (RSSI)",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "router_device_rssi != 0",
+            "legendFormat": "{{name}} ({{ssid}})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": -100,
+            "max": -30,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "orange", "value": -80 },
+                { "color": "green", "value": -65 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "WAN Throughput (Mbps)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+        "targets": [
+          {
+            "expr": "irate(router_network_bytes_total{interface=\"Broadband Connection (Ethernet/Coax)\", direction=\"rx\"}[2m]) * 8 / 1000 / 1000",
+            "legendFormat": "Download",
+            "refId": "A"
+          },
+          {
+            "expr": "irate(router_network_bytes_total{interface=\"Broadband Connection (Ethernet/Coax)\", direction=\"tx\"}[2m]) * 8 / 1000 / 1000",
+            "legendFormat": "Upload",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "bps" }
+        }
+      },
+      {
+        "title": "WiFi Interface Errors",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+        "targets": [
+          {
+            "expr": "irate(router_network_errors_total{interface=~\".*Wireless.*\"}[5m])",
+            "legendFormat": "{{interface}} Errors",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "custom": { "drawStyle": "bars" } }
+        }
+      },
+      {
+        "title": "WiFi Traffic per SSID",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+        "targets": [
+          {
+            "expr": "rate(router_wifi_rx_bytes_total[5m]) / 1024 / 1024",
+            "legendFormat": "{{ssid}} RX MB/s",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(router_wifi_tx_bytes_total[5m]) / 1024 / 1024",
+            "legendFormat": "{{ssid}} TX MB/s",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "MBs"
+          }
+        }
+      },
+      {
+        "title": "📊 WiFi Troubleshooting Guide",
+        "type": "text",
+        "gridPos": { "h": 12, "w": 12, "x": 0, "y": 36 },
+        "options": {
+          "content": "# WiFi Troubleshooting Guide\n\n## Key Metrics to Monitor\n\n### Channel Health\n- **Channel Occupancy > 40%**: High interference, consider channel change\n- **Channel Idle < 60%**: Network congestion, reduce connected devices\n\n### Signal Quality\n- **RSSI > -65 dBm**: Excellent signal\n- **RSSI -65 to -80 dBm**: Good signal\n- **RSSI < -80 dBm**: Poor signal, move closer or remove obstacles\n\n### Connection Issues\n- **RX Errors > 0**: Packet loss, check for interference\n- **Connection Rate < Max Rate**: Speed limited by signal or interference\n\n### Network Load\n- **Clients per SSID > 15**: Overloaded network, consider band steering\n- **Traffic Spikes**: Identify bandwidth hogs\n\n## Common Issues & Solutions\n\n### Slow WiFi\n1. Check channel occupancy - switch to less crowded channel\n2. Verify RSSI levels - improve signal strength\n3. Monitor RX errors - reduce interference sources\n4. Check client count - balance load across bands\n\n### Intermittent Connection\n1. High channel occupancy indicates interference\n2. Check for microwave/other 2.4GHz devices\n3. Consider 5GHz for better stability\n\n### Poor Range\n1. RSSI consistently < -80 dBm\n2. Add access points or mesh nodes\n3. Remove physical obstacles\n4. Check antenna orientation",
+          "mode": "markdown"
+        }
+      },
+      {
+        "title": "📈 Metric Explanations",
+        "type": "text",
+        "gridPos": { "h": 12, "w": 12, "x": 12, "y": 36 },
+        "options": {
+          "content": "# Metric Explanations\n\n## WiFi Network Metrics\n\n### router_wifi_radio_enabled\n**What it measures**: Whether each WiFi network is enabled\n**Good values**: 1 (enabled)\n**Action needed**: 0 (disabled) - check router settings\n\n### router_wifi_channel_occupancy_percent\n**What it measures**: Percentage of air time being used\n**Good values**: < 40%\n**Action needed**: > 60% - change WiFi channel\n\n### router_wifi_channel_idle_percent\n**What it measures**: Available air time\n**Good values**: > 60%\n**Action needed**: < 40% - reduce network load\n\n### router_wifi_rx_errors_total\n**What it measures**: WiFi packet errors received\n**Good values**: 0 or very low\n**Action needed**: Increasing - check for interference\n\n### router_wifi_max_rate_mbps\n**What it measures**: Maximum WiFi speed capability\n**Good values**: 195+ Mbps (11n), 1000+ Mbps (11ac)\n**Action needed**: Low values - check WiFi standard\n\n## Device Metrics\n\n### router_device_connection_rate\n**What it measures**: Actual connection speed per device\n**Good values**: Close to max_rate\n**Action needed**: Much lower - signal or interference issue\n\n### router_device_rssi\n**What it measures**: Signal strength (dBm)\n**Good values**: > -65 dBm\n**Action needed**: < -80 dBm - improve signal\n\n### router_device_online\n**What it measures**: Device connectivity status\n**Labels**: Includes SSID for WiFi devices\n**Action needed**: 0 when should be online - check device\n\n## Network Metrics\n\n### router_network_bytes_total\n**What it measures**: Total data transferred\n**Use**: Monitor WAN usage and WiFi traffic\n\n### router_network_errors_total\n**What it measures**: Packet errors on interfaces\n**Good values**: 0\n**Action needed**: Increasing - check cable/WiFi issues",
+          "mode": "markdown"
+        }
+      },
+      {
+        "title": "🚨 WiFi Alerts & Thresholds",
+        "type": "text",
+        "gridPos": { "h": 6, "w": 24, "x": 0, "y": 48 },
+        "options": {
+          "content": "# WiFi Alert Recommendations\n\n## Critical Alerts (Immediate Action)\n```promql\n# High channel congestion\nrouter_wifi_channel_occupancy_percent > 70\n\n# Severe signal issues\nrouter_device_rssi < -85\n\n# High error rates\nrate(router_wifi_rx_errors_total[5m]) > 100\n```\n\n## Warning Alerts (Monitor)\n```promql\n# Moderate congestion\nrouter_wifi_channel_occupancy_percent > 50\n\n# Weak signals\nrouter_device_rssi < -75\n\n# Some errors\nrate(router_wifi_rx_errors_total[5m]) > 10\n\n# Overloaded networks\nrouter_wifi_clients_per_ssid > 20\n```\n\n## Performance Alerts\n```promql\n# Speed degradation\nrouter_device_connection_rate < router_wifi_max_rate_mbps * 0.5\n\n# Low idle time\nrouter_wifi_channel_idle_percent < 30\n```\n\n## Setup in Grafana\n1. Go to Alerting → Alert rules\n2. Create new alert rule for each condition\n3. Set appropriate labels and annotations\n4. Configure notification channels (email, Slack, etc.)",
+          "mode": "markdown"
+        }
+      }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": ["router", "network", "wifi", "monitoring"],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Advanced WiFi Router Performance Dashboard",
+    "uid": "wifi_router_advanced",
+    "version": 1,
+    "weekStart": ""
+  }
+}

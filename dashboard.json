@@ -62,27 +62,86 @@
         }
       },
       {
-        "title": "Device Signal Strength (RSSI)",
-        "type": "gauge",
-        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "title": "WiFi Channel Usage",
+        "type": "table",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 16 },
         "targets": [
           {
-            "expr": "router_device_rssi != 0",
-            "legendFormat": "{{name}}",
+            "expr": "router_wifi_channel",
+            "legendFormat": "{{interface}} ({{band}})",
             "refId": "A"
           }
         ],
         "fieldConfig": {
           "defaults": {
-            "min": -100,
-            "max": -30,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                { "color": "red", "value": null },
-                { "color": "orange", "value": -80 },
-                { "color": "green", "value": -65 }
-              ]
+            "custom": {
+              "displayMode": "color-text"
+            }
+          }
+        }
+      },
+      {
+        "title": "WiFi Noise Floor & SNR",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+        "targets": [
+          {
+            "expr": "router_wifi_noise_floor",
+            "legendFormat": "{{interface}} Noise Floor",
+            "refId": "A"
+          },
+          {
+            "expr": "router_wifi_snr",
+            "legendFormat": "{{interface}} SNR",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "dBm" }
+        }
+      },
+      {
+        "title": "Clients per WiFi Band",
+        "type": "bargauge",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 22 },
+        "targets": [
+          {
+            "expr": "router_wifi_clients_per_band",
+            "legendFormat": "{{band}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "title": "Device Connection Rates",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+        "targets": [
+          {
+            "expr": "router_device_connection_rate > 0",
+            "legendFormat": "{{name}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": { "unit": "Mbps" }
+        }
+      },
+      {
+        "title": "Connected Devices by Band",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 30 },
+        "targets": [
+          {
+            "expr": "router_device_online{ssid!=\"Wired\"}",
+            "legendFormat": "{{name}} ({{ssid}})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "displayMode": "color-text"
             }
           }
         }
