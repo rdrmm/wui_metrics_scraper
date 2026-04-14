@@ -27,6 +27,16 @@ Move-Item -Path "$TempDir\prometheus-$PrometheusVersion.windows-amd64\*" -Destin
 Write-Host "Extracting NSSM..."
 Expand-Archive -Path "$TempDir\nssm.zip" -DestinationPath $TempDir
 
+# Remove existing Prometheus service if it exists
+Write-Host "Checking for existing Prometheus service..."
+$service = Get-Service -Name "Prometheus" -ErrorAction SilentlyContinue
+if ($service) {
+    Write-Host "Stopping existing Prometheus service..."
+    Stop-Service -Name "Prometheus" -Force -ErrorAction SilentlyContinue
+    Write-Host "Removing existing Prometheus service..."
+    & nssm remove Prometheus confirm
+}
+
 # Install Prometheus as a service using NSSM
 Write-Host "Installing Prometheus as a service..."
 & $NssmExe install Prometheus $PrometheusExe
